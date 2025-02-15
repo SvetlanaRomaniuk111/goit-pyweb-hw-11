@@ -5,17 +5,24 @@ from src.repository import contacts as repositories_contacts
 from src.schemas.contact import ContactCreateSchema, ContactResponse, \
     ContactUpdateSchema
 from pydantic import ValidationError
-from datetime import date
+from datetime import date, timedelta
 
 router = APIRouter(prefix="/contacts", tags=["contacts"])
 
 
 @router.get("/birthdays", response_model=list[ContactResponse])
 async def get_upcoming_birthdays(
-        startDate: date = Query(..., alias="startDate"),
-        endDate: date = Query(..., alias="endDate"),
+        startDate: date = Query(None, alias="startDate"),
+        endDate: date = Query(None, alias="endDate"),
         db: AsyncSession = Depends(get_db)
 ):
+    # Встановлення значень за замовчуванням для дат
+    today = date.today()
+    if startDate is None:
+        startDate = today
+    if endDate is None:
+        endDate = today + timedelta(days=7)
+
     print(
         f"Query parameters received - startDate: {startDate}, endDate: {endDate}")  # Логування параметрів запиту
     try:

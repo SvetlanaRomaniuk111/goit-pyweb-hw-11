@@ -76,4 +76,3 @@ async def get_upcoming_birthdays(startDate: date, endDate: date, db: AsyncSessio
     except Exception as e:
         print("Error fetching upcoming birthdays:", e)  # Вивід помилок
         raise Exception(f"Error fetching upcoming birthdays: {e}")
-

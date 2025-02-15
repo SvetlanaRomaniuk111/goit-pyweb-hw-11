@@ -54,10 +54,10 @@ window.deleteContact = async function (id) {
   }
 }
 
-window.getUpcomingBirthdays = async function (startDate, endDate) {
+window.getUpcomingBirthdays = async function () {
   try {
-    console.log(`Requesting birthdays with startDate: ${startDate}, endDate: ${endDate}`);  // Логування
-    const response = await fetch(`${url}birthdays?startDate=${startDate}&endDate=${endDate}`);
+    console.log(`Requesting birthdays without dates`);  // Логування
+    const response = await fetch(`${url}birthdays`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -77,15 +77,8 @@ function getFormattedDate(date) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-  const currentDate = new Date();
-  const startDate = getFormattedDate(currentDate);
-  const endDate = getFormattedDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
-
-  console.log(`Formatted Start Date: ${startDate}`);
-  console.log(`Formatted End Date: ${endDate}`);
-
   try {
-    const birthdays = await getUpcomingBirthdays(startDate, endDate);
+    const birthdays = await getUpcomingBirthdays();
     console.log('Birthdays:', birthdays);  // Вивід отриманих контактів
   } catch (error) {
     console.error('Error:', error);
