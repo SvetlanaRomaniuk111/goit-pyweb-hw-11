@@ -53,6 +53,24 @@
         this.error = err.message;
       }
     },
+    async fetchBirthdays() {
+      try {
+        const birthdays = await window.getUpcomingBirthdays();
+        this.displayBirthdays(birthdays);
+      } catch (err) {
+        this.error = err.message;
+      }
+    },
+    displayBirthdays(birthdays) {
+      const list = document.getElementById('birthdays-list');
+      list.innerHTML = ''; // Clear previous results
+      birthdays.forEach(contact => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('list-group-item');
+        listItem.textContent = `${contact.first_name} ${contact.last_name} - ${contact.birthday}`;
+        list.appendChild(listItem);
+      });
+    },
     init() { this.getContacts(); }
   }" x-init="init()">
     <div class="row">
@@ -84,6 +102,10 @@
 
           <button @click="createContact" class="btn btn-primary">Add</button>
         </div>
+
+        <h2 class="my-4">Upcoming Birthdays</h2>
+        <button class="btn btn-info mb-4" @click="fetchBirthdays()">Get Upcoming Birthdays</button>
+        <ul id="birthdays-list" class="list-group mb-4"></ul>
 
         <ul class="list-group">
           <template x-for="contact in contacts" :key="contact.id">

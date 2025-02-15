@@ -53,3 +53,41 @@ window.deleteContact = async function (id) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
 }
+
+window.getUpcomingBirthdays = async function (startDate, endDate) {
+  try {
+    console.log(`Requesting birthdays with startDate: ${startDate}, endDate: ${endDate}`);  // Логування
+    const response = await fetch(`${url}birthdays?startDate=${startDate}&endDate=${endDate}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const birthdays = await response.json();
+    return birthdays;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+}
+
+function getFormattedDate(date) {
+  const year = date.getFullYear();
+  const month = ('0' + (date.getMonth() + 1)).slice(-2);
+  const day = ('0' + date.getDate()).slice(-2);
+  return `${year}-${month}-${day}`;
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  const currentDate = new Date();
+  const startDate = getFormattedDate(currentDate);
+  const endDate = getFormattedDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
+
+  console.log(`Formatted Start Date: ${startDate}`);
+  console.log(`Formatted End Date: ${endDate}`);
+
+  try {
+    const birthdays = await getUpcomingBirthdays(startDate, endDate);
+    console.log('Birthdays:', birthdays);  // Вивід отриманих контактів
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});

@@ -1,9 +1,8 @@
-from sqlalchemy import select, and_, extract
+from sqlalchemy import select, and_, extract, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.entity.models import Contact
 from src.schemas.contact import ContactCreateSchema, ContactUpdateSchema
 from datetime import date, timedelta
-
 
 async def get_contacts(limit: int, offset: int, first_name: str, last_name: str,
                        email: str, db: AsyncSession):
@@ -60,24 +59,21 @@ async def delete_contact(contact_id: int, db: AsyncSession):
     return contact
 
 
-async def get_upcoming_birthdays(db: AsyncSession):
+async def get_upcoming_birthdays(startDate: date, endDate: date, db: AsyncSession):
     try:
-        today = date.today()
-        upcoming_date = today + timedelta(days=7)
+        print(f"Received startDate: {startDate}, endDate: {endDate}")  # Друк отриманих дат
 
         stmt = select(Contact).filter(
-            (extract('month', Contact.birthday) == today.month) & (
-                        extract('day', Contact.birthday) >= today.day) |
-            (extract('month', Contact.birthday) == upcoming_date.month) & (
-                        extract('day', Contact.birthday) <= upcoming_date.day)
+            and_(
+                func.DATE(Contact.birthday) >= startDate,
+                func.DATE(Contact.birthday) <= endDate
+            )
         )
-
         result = await db.execute(stmt)
         contacts = result.scalars().all()
-        print(
-            f"Today: {today}, Upcoming date: {upcoming_date}")  # Вивід поточних дат
         print(f"Contacts fetched: {contacts}")  # Вивід контактів
         return contacts
     except Exception as e:
         print("Error fetching upcoming birthdays:", e)  # Вивід помилок
         raise Exception(f"Error fetching upcoming birthdays: {e}")
+
