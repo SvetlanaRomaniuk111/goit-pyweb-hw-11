@@ -11,35 +11,14 @@ router = APIRouter(prefix="/contacts", tags=["contacts"])
 
 
 @router.get("/birthdays", response_model=list[ContactResponse])
-async def get_upcoming_birthdays(
-        startDate: date = Query(None, alias="startDate"),
-        endDate: date = Query(None, alias="endDate"),
-        db: AsyncSession = Depends(get_db)
-):
-    # Встановлення значень за замовчуванням для дат
-    today = date.today()
-    if startDate is None:
-        startDate = today
-    if endDate is None:
-        endDate = today + timedelta(days=7)
-
-    print(
-        f"Query parameters received - startDate: {startDate}, endDate: {endDate}")  # Логування параметрів запиту
+async def get_upcoming_birthdays(db: AsyncSession = Depends(get_db)):
     try:
-        contacts = await repositories_contacts.get_upcoming_birthdays(startDate,
-                                                                      endDate,
-                                                                      db)
-        validated_contacts = [ContactResponse(**contact.model_dump()) for
-                              contact in contacts]
+        contacts = await repositories_contacts.get_upcoming_birthdays(db)
+        validated_contacts = [ContactResponse.model_validate(contact) for contact in contacts]
         return validated_contacts
-    except ValidationError as ve:
-        print("ValidationError: ", ve)
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=str(ve))
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
-        print("Exception: ", e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Internal server error: {e}")
 

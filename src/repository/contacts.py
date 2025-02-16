@@ -59,20 +59,23 @@ async def delete_contact(contact_id: int, db: AsyncSession):
     return contact
 
 
-async def get_upcoming_birthdays(startDate: date, endDate: date, db: AsyncSession):
+async def get_upcoming_birthdays(db: AsyncSession):
     try:
-        print(f"Received startDate: {startDate}, endDate: {endDate}")  # Друк отриманих дат
+        today = date.today()
+        end_date = today + timedelta(days=7)
+        print(f"Fetching birthdays from {today} to {end_date}")  # Логування діапазону дат
 
+        # Обробка дат у форматі MM-DD для врахування місяця та дня
         stmt = select(Contact).filter(
             and_(
-                func.DATE(Contact.birthday) >= startDate,
-                func.DATE(Contact.birthday) <= endDate
+                func.to_char(Contact.birthday, 'MM-DD') >= func.to_char(today, 'MM-DD'),
+                func.to_char(Contact.birthday, 'MM-DD') <= func.to_char(end_date, 'MM-DD')
             )
         )
         result = await db.execute(stmt)
         contacts = result.scalars().all()
-        print(f"Contacts fetched: {contacts}")  # Вивід контактів
+        print(f"Contacts fetched: {contacts}")  # Логування отриманих контактів
         return contacts
     except Exception as e:
-        print("Error fetching upcoming birthdays:", e)  # Вивід помилок
+        print("Error fetching upcoming birthdays:", e)  # Логування помилки
         raise Exception(f"Error fetching upcoming birthdays: {e}")
