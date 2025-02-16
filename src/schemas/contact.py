@@ -63,7 +63,10 @@ class ContactResponse(ContactBase):
     def validate_birthday(cls, value):
         return validate_birthday(value)
 
-
+class ContactShortResponse(BaseModel):
+    first_name: str
+    last_name: str
+    birthday: date
 
     class Config:
         from_attributes = True

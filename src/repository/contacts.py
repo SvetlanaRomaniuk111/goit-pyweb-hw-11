@@ -63,7 +63,6 @@ async def get_upcoming_birthdays(db: AsyncSession):
     try:
         today = date.today()
         end_date = today + timedelta(days=7)
-        print(f"Fetching birthdays from {today} to {end_date}")  # Логування діапазону дат
 
         # Обробка дат у форматі MM-DD для врахування місяця та дня
         stmt = select(Contact).filter(
